@@ -1,0 +1,9 @@
+{
+	"name": "bholuclarivate",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "80bdf70f-21de-49f9-a17a-7a2484dbe08d",
+		"tenantId": "37174377-f5bc-4c94-a7e5-b018af6f3d7c"
+	}
+}

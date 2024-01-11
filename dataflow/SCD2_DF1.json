@@ -1,0 +1,174 @@
+{
+	"name": "SCD2_DF1",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "SCDinput1",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				},
+				{
+					"dataset": {
+						"referenceName": "SnowflakeAsSource1",
+						"type": "DatasetReference"
+					},
+					"name": "source2"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "SnowflakeTable11",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				},
+				{
+					"dataset": {
+						"referenceName": "SnowflakeAsSource1",
+						"type": "DatasetReference"
+					},
+					"name": "sink2"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "lookup1"
+				},
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "select2"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "alterRow1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          ID as decimal(10,0),",
+				"          NAME as string,",
+				"          SALARY as decimal(10,0),",
+				"          AGE as decimal(10,0),",
+				"          RATING as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> source1",
+				"source(output(",
+				"          SURRKEY as decimal(38,0),",
+				"          ID as decimal(38,0),",
+				"          NAME as string,",
+				"          SALARY as decimal(18,2),",
+				"          AGE as decimal(38,0),",
+				"          RATING as string,",
+				"          ISACTIVE as decimal(38,0)",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table') ~> source2",
+				"source1 derive(IsActive = toDecimal('1')) ~> derivedColumn1",
+				"source2 select(mapColumn(",
+				"          SQL_SURRKEY = SURRKEY,",
+				"          SQL_ID = ID,",
+				"          SQL_NAME = NAME,",
+				"          SQL_SALARY = SALARY,",
+				"          SQL_AGE = AGE,",
+				"          SQL_RATING = RATING,",
+				"          SQL_ISACTIVE = ISACTIVE",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"source1, select1 lookup(ID == SQL_ID,",
+				"     multiple: true,",
+				"     broadcast: 'auto')~> lookup1",
+				"lookup1 filter(!isNull(SQL_ID)) ~> filter1",
+				"filter1 select(mapColumn(",
+				"          SQL_SURRKEY,",
+				"          SQL_ID,",
+				"          SQL_NAME,",
+				"          SQL_SALARY,",
+				"          SQL_AGE,",
+				"          SQL_RATING,",
+				"          SQL_ISACTIVE",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
+				"select2 derive(SQL_ISACTIVE = toDecimal('0')) ~> derivedColumn2",
+				"derivedColumn2 alterRow(updateIf(1==1)) ~> alterRow1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          SURRKEY as decimal(38,0),",
+				"          ID as decimal(38,0),",
+				"          NAME as string,",
+				"          SALARY as decimal(18,2),",
+				"          AGE as decimal(38,0),",
+				"          RATING as string,",
+				"          ISACTIVE as decimal(38,0)",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 2,",
+				"     stageInsert: true,",
+				"     mapColumn(",
+				"          ID,",
+				"          NAME,",
+				"          SALARY,",
+				"          AGE,",
+				"          RATING,",
+				"          ISACTIVE = IsActive",
+				"     )) ~> sink1",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          SURRKEY as decimal(38,0),",
+				"          ID as decimal(38,0),",
+				"          NAME as string,",
+				"          SALARY as decimal(18,2),",
+				"          AGE as decimal(38,0),",
+				"          RATING as string,",
+				"          ISACTIVE as decimal(38,0)",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:false,",
+				"     updateable:true,",
+				"     upsertable:false,",
+				"     keys:['SURRKEY'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 1,",
+				"     stageInsert: true,",
+				"     mapColumn(",
+				"          SURRKEY = SQL_SURRKEY,",
+				"          ID = SQL_ID,",
+				"          NAME = SQL_NAME,",
+				"          SALARY = SQL_SALARY,",
+				"          AGE = SQL_AGE,",
+				"          RATING = SQL_RATING,",
+				"          ISACTIVE = SQL_ISACTIVE",
+				"     )) ~> sink2"
+			]
+		}
+	}
+}
