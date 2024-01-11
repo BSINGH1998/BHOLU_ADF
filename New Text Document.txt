@@ -1,0 +1,8 @@
+(PRODUCTLINE == 'Motorcycles') || (PRODUCTLINE == 'Trucks and Buses') || (PRODUCTLINE == 'BHOLU')
+
+
+
+iif(equals(GENDER, 'M'), 'MALE',
+iif(equals(GENDER, 'F'), 'FEMALE',
+iif(equals(GENDER, 'T'), 'TRANS',
+    'UNKNOWN')))
