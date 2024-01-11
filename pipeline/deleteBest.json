@@ -126,7 +126,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"expression": {
-									"value": "@endsWith(variables('FileName'), '.csv')",
+									"value": "@endsWith(variables('FileName'), '.docs')",
 									"type": "Expression"
 								},
 								"ifTrueActivities": [
