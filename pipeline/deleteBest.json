@@ -126,7 +126,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"expression": {
-									"value": "@and(endsWith(variables('FileName'), '.csv'), greaterOrEquals(activity('Get Metadata2').output.size, 60000000))",
+									"value": "@endsWith(variables('FileName'), '.csv')",
 									"type": "Expression"
 								},
 								"ifTrueActivities": [
